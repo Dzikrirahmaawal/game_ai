@@ -1,0 +1,60 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Global safety net Catch-All
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Secure helper utilities
+    function isValidId(id) {
+      return id is string && id.size() == 6 && id.matches('^[A-Z2-9]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Room validation schema
+    function isValidRoom(data) {
+      return data.keys().hasAll(['id', 'fen', 'turn', 'status', 'createdAt', 'lastMovedAt', 'whitePlayer', 'moves', 'chat', 'timer'])
+        && data.id is string
+        && data.fen is string
+        && data.fen.size() <= 200
+        && data.turn is string
+        && (data.turn == 'w' || data.turn == 'b')
+        && data.status is string
+        && (data.status == 'lobby' || data.status == 'playing' || data.status == 'checkmate' || data.status == 'stalemate' || data.status == 'draw' || data.status == 'resigned' || data.status == 'timeout')
+        && data.createdAt is int
+        && data.lastMovedAt is int
+        && data.moves is list
+        && data.chat is list
+        && data.whitePlayer is map
+        && (data.blackPlayer == null || data.blackPlayer is map)
+        && data.timer is map;
+    }
+
+    // Secured /rooms/{roomId} collection
+    match /rooms/{roomId} {
+      allow get: if isValidId(roomId);
+      allow list: if false; // Block room listing to prevent scraping invite codes
+
+      allow create: if isValidId(roomId) 
+        && isValidRoom(incoming()) 
+        && incoming().id == roomId;
+      
+      allow update: if isValidId(roomId) 
+        && isValidRoom(incoming()) 
+        && incoming().id == roomId
+        && incoming().createdAt == existing().createdAt
+        && incoming().whitePlayer.id == existing().whitePlayer.id;
+
+      allow delete: if false;
+    }
+  }
+}

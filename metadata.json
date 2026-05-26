@@ -1,0 +1,6 @@
+{
+  "name": "Chess Online & AI Bot",
+  "description": "Game catur online multiplayer real-time bergantian (turn-based) dan tanding melawan bot kecerdasan heuristik atau bimbingan Gemini AI Coach Bahasa Indonesia.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

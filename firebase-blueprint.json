@@ -1,0 +1,69 @@
+{
+  "entities": {
+    "ChessRoom": {
+      "title": "ChessRoom",
+      "description": "A single real-time chess room match between two players or a player and bot.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The unique 6-character room code."
+        },
+        "fen": {
+          "type": "string",
+          "description": "The standard Forsyth-Edwards Notation (FEN) representing the current board state."
+        },
+        "turn": {
+          "type": "string",
+          "enum": ["w", "b"],
+          "description": "The active player color whose turn it is to move."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["lobby", "playing", "checkmate", "stalemate", "draw", "resigned", "timeout"],
+          "description": "The match status."
+        },
+        "winner": {
+          "type": "string",
+          "format": "string-or-null",
+          "description": "The winning color 'w' or 'b', otherwise null."
+        },
+        "whitePlayer": {
+          "type": "object",
+          "description": "The details of the white team player."
+        },
+        "blackPlayer": {
+          "type": "object",
+          "description": "The details of the black team player."
+        },
+        "moves": {
+          "type": "array",
+          "description": "The algebraic coordinate log of all played moves."
+        },
+        "chat": {
+          "type": "array",
+          "description": "The discussion/conversation logs shared inside the room."
+        },
+        "createdAt": {
+          "type": "number",
+          "description": "POSIX millisecond epoch of room creation."
+        },
+        "lastMovedAt": {
+          "type": "number",
+          "description": "POSIX millisecond epoch of the most recent move."
+        },
+        "timer": {
+          "type": "object",
+          "description": "State of white and black player countdown clocks."
+        }
+      },
+      "required": ["id", "fen", "turn", "status", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/rooms/{roomId}": {
+      "schema": "ChessRoom",
+      "description": "Store live details, player pairings, turn state, and chat logs of a match."
+    }
+  }
+}
